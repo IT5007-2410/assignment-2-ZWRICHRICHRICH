@@ -164,17 +164,35 @@ class Delete extends React.Component {
   constructor() {
     super();
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.state = { travellerName: '', seatNumber: '' };
   }
   handleSubmit(e) {
     e.preventDefault();
     /*Q5. Fetch the passenger details from the deletion form and call deleteTraveller()*/
+    const { travellerName, seatNumber } = this.state;
+    this.props.deleteTraveller(travellerName, seatNumber);
+    // 清空输入框
+    this.setState({ travellerName: '', seatNumber: '' });
   }
 
   render() {
     return (
       <form name="deleteTraveller" onSubmit={this.handleSubmit}>
 	    {/*Q5. Placeholder form to enter information on which passenger's ticket needs to be deleted. Below code is just an example.*/}
-	<input type="text" name="travellername" placeholder="Name" />
+      <input
+        type="text"
+        name="travellername"
+        placeholder="Name (optional)"
+        value={this.state.travellerName}
+        onChange={(e) => this.setState({ travellerName: e.target.value })}
+      />
+      <input
+        type="text"
+        name="seatNumber"
+        placeholder="Seat Number (optional)"
+        value={this.state.seatNumber}
+        onChange={(e) => this.setState({ seatNumber: e.target.value })}
+      />
         <button>Delete</button>
       </form>
     );
@@ -272,8 +290,20 @@ class TicketToRide extends React.Component {
       }));
   }
 
-  deleteTraveller(passenger) {
+  deleteTraveller(travellerName, seatNumber) {
 	  /*Q5. Write code to delete a passenger from the traveller state variable.*/
+    this.setState((prevState) => ({
+      travellers: prevState.travellers.filter(traveller => {
+        // 改动1: 确保 travellerName 和 seatNumber 正确使用
+        // 如果传入了 travellerName，则检查当前旅客的名字是否匹配
+        const nameMatches = travellerName ? traveller.name === travellerName : true;
+        // 如果传入了 seatNumber，则检查当前旅客的座位号是否匹配
+        const seatMatches = seatNumber ? traveller.seatNumber === seatNumber : true;
+        // 改动2: 当名字和座位号都匹配时，删除该旅客，返回 false
+        // 否则保留该旅客，返回 true
+        return !(nameMatches && seatMatches);
+      }),
+    }));
   }
   render() {
     return (
@@ -289,15 +319,13 @@ class TicketToRide extends React.Component {
         <div>
           {/*Only one of the below four divisions is rendered based on the button clicked by the user.*/}
           {/*Q2 and Q6. Code to call Instance that draws Homepage. Homepage shows Visual Representation of free seats.*/}
-          <button onClick={() => this.setSelector(1)}>Homepage</button>
-          <button onClick={() => this.setSelector(2)}>Display Travellers</button>
-          <button onClick={() => this.setSelector(3)}>Add Traveller</button>
-          <button onClick={() => this.setSelector(4)}>Delete Traveller</button>
+          {this.state.selector === 1 && <Homepage travellers={this.state.travellers} />}
           {/*Q3. Code to call component that Displays Travellers.*/}
           {this.state.selector === 2 && <Display travellers={this.state.travellers} />}
           {/*Q4. Code to call the component that adds a traveller.*/}
           {this.state.selector === 3 && <Add bookTraveller={this.bookTraveller} travellers={this.state.travellers} />}
           {/*Q5. Code to call the component that deletes a traveller based on a given attribute.*/}
+          {this.state.selector === 4 && <Delete deleteTraveller={this.deleteTraveller} />}
         </div>
       </div>
     );
