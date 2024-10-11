@@ -1,12 +1,22 @@
 /*Q1. JS Variable needs to be created here. Below variable is just an example. Try to add more attributes.*/
 const initialTravellers = [
   {
-    id: 1, name: 'Jack', phone: 88885555,
+    id: 1, 
+    name: 'Jack', 
+    phone: '88885555',
     bookingTime: new Date(),
+    seatNumber: '1', // 更新座位号为 1
+    passengerClass: 'Economy', // 设置乘客等级
+    ticketType: 'One-way' // 设置车票类型
   },
   {
-    id: 2, name: 'Rose', phone: 88884444,
+    id: 2, 
+    name: 'Rose', 
+    phone: '88884444',
     bookingTime: new Date(),
+    seatNumber: '2', // 更新座位号为 2
+    passengerClass: 'Business', // 设置乘客等级
+    ticketType: 'Round-trip' // 设置车票类型
   },
 ];
 
