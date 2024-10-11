@@ -75,18 +75,84 @@ class Add extends React.Component {
   constructor() {
     super();
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.state = { travellerName: '', phone: '', seatNumber: '', passengerClass: '', ticketType: '' };
   }
 
   handleSubmit(e) {
     e.preventDefault();
     /*Q4. Fetch the passenger details from the add form and call bookTraveller()*/
+    const { travellerName, phone, seatNumber, passengerClass, ticketType } = this.state;
+    const newTraveller = {
+      id: this.props.travellers.length + 1,
+      name: travellerName,
+      phone: phone,
+      bookingTime: new Date(),
+      seatNumber: seatNumber,
+      passengerClass: passengerClass,
+      ticketType: ticketType,
+    };
+    this.props.bookTraveller(newTraveller);
+    this.setState({ travellerName: '', phone: '', seatNumber: '', passengerClass: '', ticketType: '' });
   }
 
   render() {
+    const { travellers } = this.props;
+    const totalSeats = 30;
+    const occupiedSeats = travellers.map(traveller => traveller.seatNumber);
+    const freeSeats = [...Array(totalSeats)].map((_, index) => (index + 1).toString()).filter(seat => !occupiedSeats.includes(seat)); // 计算空闲座位列表
+    
     return (
       <form name="addTraveller" onSubmit={this.handleSubmit}>
 	    {/*Q4. Placeholder to enter passenger details. Below code is just an example.*/}
-        <input type="text" name="travellername" placeholder="Name" />
+      <p>Free Seats: {freeSeats.length}</p> {/* 使用freeSeats的长度显示空闲座位的数量 */}
+      <input
+          type="text"
+          name="travellername"
+          placeholder="Name"
+          value={this.state.travellerName}
+          onChange={(e) => this.setState({ travellerName: e.target.value })}
+          required
+        />
+        <input
+          type="text"
+          name="phone"
+          placeholder="Phone"
+          value={this.state.phone}
+          onChange={(e) => this.setState({ phone: e.target.value })}
+          required
+        />
+        <select
+          name="seatNumber"
+          value={this.state.seatNumber}
+          onChange={(e) => this.setState({ seatNumber: e.target.value })}
+          required
+        >
+          <option value="">Select Seat</option>
+          {freeSeats.map(seat => (
+            <option key={seat} value={seat}>{seat}</option>
+          ))}
+        </select>
+        <select
+          name="passengerClass"
+          value={this.state.passengerClass}
+          onChange={(e) => this.setState({ passengerClass: e.target.value })}
+          required
+        >
+          <option value="">Select Passenger Class</option>
+          <option value="Economy">Economy</option>
+          <option value="Business">Business</option>
+          <option value="First Class">First Class</option>
+        </select>
+        <select
+          name="ticketType"
+          value={this.state.ticketType}
+          onChange={(e) => this.setState({ ticketType: e.target.value })}
+          required
+        >
+          <option value="">Select Ticket Type</option>
+          <option value="One-way">One-way</option>
+          <option value="Round-trip">Round-trip</option>
+        </select>
         <button>Add</button>
       </form>
     );
@@ -178,9 +244,10 @@ class Homepage extends React.Component {
 class TicketToRide extends React.Component {
   constructor() {
     super();
-    this.state = { travellers: [], selector: 1};
+    this.state = { travellers: initialTravellers, selector: 1 };
     this.bookTraveller = this.bookTraveller.bind(this);
     this.deleteTraveller = this.deleteTraveller.bind(this);
+    this.setSelector = this.setSelector.bind(this);
   }
 
   setSelector(value)
@@ -200,6 +267,9 @@ class TicketToRide extends React.Component {
 
   bookTraveller(passenger) {
 	    /*Q4. Write code to add a passenger to the traveller state variable.*/
+      this.setState((prevState) => ({
+        travellers: [...prevState.travellers, passenger],
+      }));
   }
 
   deleteTraveller(passenger) {
@@ -226,6 +296,7 @@ class TicketToRide extends React.Component {
           {/*Q3. Code to call component that Displays Travellers.*/}
           {this.state.selector === 2 && <Display travellers={this.state.travellers} />}
           {/*Q4. Code to call the component that adds a traveller.*/}
+          {this.state.selector === 3 && <Add bookTraveller={this.bookTraveller} travellers={this.state.travellers} />}
           {/*Q5. Code to call the component that deletes a traveller based on a given attribute.*/}
         </div>
       </div>
