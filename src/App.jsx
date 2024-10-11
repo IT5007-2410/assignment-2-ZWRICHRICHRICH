@@ -20,7 +20,7 @@ const initialTravellers = [
     seatNumber: '2', // 更新座位号为 2
     passengerClass: 'Business', // 设置乘客等级
     ticketType: 'Round-trip' // 设置车票类型
-    
+
   },
 ];
 
@@ -105,9 +105,58 @@ class Homepage extends React.Component {
 	super();
 	}
 	render(){
-	return (
-	<div>
+    const totalSeats = 30; // 总座位数为 30
+    const occupiedSeats = this.props.travellers.map(traveller => traveller.seatNumber); // 获取所有已预订的座位号
+    const freeSeats = [...Array(totalSeats)].map((_, index) => (index + 1).toString()).filter(seat => !occupiedSeats.includes(seat)); // 计算空闲座位列表
+	
+  return (
+	<div style={{ textAlign: 'center' }}>
 		{/*Q2. Placeholder for Homepage code that shows free seats visually.*/}
+    <h2>Seat Selection</h2>
+    <p><strong>Available Seats: {totalSeats - occupiedSeats.length} / {totalSeats}</strong></p>
+    <div style={{ 
+      display: 'grid',
+      gridTemplateColumns: '1fr 1fr 2fr 1fr 1fr', // 设置网格布局，第三列宽度较大模拟走廊
+      gap: '5px', // 设置每个座位之间的间距
+      justifyContent: 'center',
+      margin: '20px auto',
+      width: '70%', // 调整整体宽度
+    }}>
+      {[...Array(totalSeats)].map((_, index) => {
+        const seatNumber = (index + 1).toString();
+        const isOccupied = occupiedSeats.includes(seatNumber); // 检查该座位是否已被预订
+        let columnPosition;
+
+        // 设置前 7 排的座位位置
+        if (index < 28) {
+          columnPosition = (index % 4 < 2) ? (index % 4 + 1) : (index % 4 + 3); // 左边两列和右边两列，中间留出走廊
+        } else {
+          // 最后一排的两个座位
+          columnPosition = (index % 2 === 0) ? 1 : 5; // 分布在两侧
+        }
+
+        const seatStyle = {
+          gridColumn: columnPosition, // 设置列位置
+          width: '50px',
+          height: '50px',
+          backgroundColor: isOccupied ? 'grey' : 'green',
+          borderRadius: '5px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'white',
+        };
+
+        return (
+          <div 
+            key={index} 
+            style={seatStyle}
+          >
+            {seatNumber}
+          </div>
+        );
+      })}
+    </div>
 	</div>);
 	}
 }
@@ -122,6 +171,7 @@ class TicketToRide extends React.Component {
   setSelector(value)
   {
   	/*Q2. Function to set the value of component selector variable based on user's button click.*/
+    this.setState({ selector: value });
   }
   componentDidMount() {
     this.loadData();
@@ -150,6 +200,10 @@ class TicketToRide extends React.Component {
 	<div>
 		{/*Only one of the below four divisions is rendered based on the button clicked by the user.*/}
 		{/*Q2 and Q6. Code to call Instance that draws Homepage. Homepage shows Visual Representation of free seats.*/}
+    <button onClick={() => this.setSelector(1)}>Homepage</button>
+    <button onClick={() => this.setSelector(2)}>Display Travellers</button>
+    <button onClick={() => this.setSelector(3)}>Add Traveller</button>
+    <button onClick={() => this.setSelector(4)}>Delete Traveller</button>
 		{/*Q3. Code to call component that Displays Travellers.*/}
 		
 		{/*Q4. Code to call the component that adds a traveller.*/}
